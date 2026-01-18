@@ -21,7 +21,7 @@ const LandingPage: React.FC = () => {
                       data-alt="Ilustração de planejamento financeiro"
                       style={{
                         backgroundImage:
-                          'url("https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?q=80&w=2071&auto=format&fit=crop")',
+                          'url("https://lh3.googleusercontent.com/aida-public/AB6AXuD9WVd-1RmJLJWB-hiaxYK8AkK9PTXhRtwD-B_aycf2UP96vSFmsBTw821ZxKNC0FooPg2h_Dy1XAFEe-HbmCDE96joIWLBwIkBjjZZIJV900hssaRMb32PZwdDipKmULpywLANZ6tZb_ToCCIEbKwhfpoNUzINOq_D6ZgPSYgnHwaskaSOaRNPVRdoA_qPPYTM1Jo997aqylgOxstKP1rNke4lVMvn-gwfkF66YBs3J3BvXut3DLSmMbnjsLFYYVuaB_U414l4ihQ")',
                       }}
                     ></div>
                   </div>
@@ -66,15 +66,13 @@ const LandingPage: React.FC = () => {
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                     {[
-                      { icon: 'person_add', title: '1. Crie sua conta', desc: 'Cadastre-se rapidamente e configure seu perfil.' },
-                      { icon: 'paid', title: '2. Registre seus gastos', desc: 'Adicione suas receitas e despesas para ter clareza para onde vai seu dinheiro.' },
-                      { icon: 'rocket_launch', title: '3. Alcance seus objetivos', desc: 'Defina orçamentos, crie metas e acompanhe seu progresso.' },
+                      { img: '/img_landingpage/img_01_controle.png', title: '1. Crie sua conta', desc: 'Cadastre-se rapidamente e configure seu perfil.' },
+                      { img: '/img_landingpage/img_02_metas.png', title: '2. Registre seus gastos', desc: 'Adicione suas receitas e despesas para ter clareza para onde vai seu dinheiro.' },
+                      { img: '/img_landingpage/img_03_categorias.png', title: '3. Alcance seus objetivos', desc: 'Defina orçamentos, crie metas e acompanhe seu progresso.' },
                     ].map((step, idx) => (
                       <div key={idx} className="flex flex-col items-center text-center">
-                        <div className="flex items-center justify-center size-12 rounded-full bg-primary-landing/10 text-primary-landing mb-4">
-                          <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>
-                            {step.icon}
-                          </span>
+                        <div className="flex items-center justify-center size-24 mb-4 rounded-xl overflow-hidden shadow-sm">
+                          <img src={step.img} alt={step.title} className="w-full h-full object-cover" />
                         </div>
                         <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">{step.title}</h3>
                         <p className="text-gray-700 dark:text-gray-300 mt-1">{step.desc}</p>
