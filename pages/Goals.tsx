@@ -114,6 +114,20 @@ const Goals: React.FC = () => {
                         <div className="flex items-start justify-between">
                           <div className="flex flex-col gap-1">
                             <h3 className="text-lg font-bold text-primary dark:text-background-light">{goal.title}</h3>
+                            {!goal.is_completed && goal.target_date && (
+                                <span className={`text-xs font-bold px-2 py-0.5 rounded-full w-fit ${
+                                    Math.ceil((new Date(goal.target_date).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)) < 0 
+                                    ? 'bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400'
+                                    : Math.ceil((new Date(goal.target_date).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)) <= 7
+                                    ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400'
+                                    : 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400'
+                                }`}>
+                                    {Math.ceil((new Date(goal.target_date).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)) < 0
+                                        ? `Atrasado ${Math.abs(Math.ceil((new Date(goal.target_date).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)))} dias`
+                                        : `Faltam ${Math.ceil((new Date(goal.target_date).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))} dias`
+                                    }
+                                </span>
+                            )}
                           </div>
                           <div
                             className={`flex items-center justify-center size-10 rounded-full bg-primary/10 text-primary`}

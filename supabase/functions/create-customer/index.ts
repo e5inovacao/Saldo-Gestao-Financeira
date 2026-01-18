@@ -70,7 +70,14 @@ serve(async (req) => {
 
       if (!createResponse.ok) {
         console.error('Erro ao criar cliente Asaas:', createData)
-        throw new Error(createData.errors?.[0]?.description || 'Falha ao criar cliente')
+        const errorDescription = createData.errors?.[0]?.description || 'Falha ao criar cliente'
+        
+        // Verifica se é erro de CPF inválido
+        if (errorDescription.includes('CPF/CNPJ inválido')) {
+            throw new Error('O CPF informado é inválido. Verifique os dígitos.')
+        }
+        
+        throw new Error(errorDescription)
       }
       customerId = createData.id
     }

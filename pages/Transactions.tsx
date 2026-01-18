@@ -2,10 +2,13 @@ import React, { useEffect, useMemo, useState } from 'react';
 import Header from '../components/Header';
 import { supabase } from '../src/lib/supabase';
 import { useAuth } from '../src/contexts/AuthContext';
-import type { TransactionDB, CategoryDB } from '../types';
+import type { TransactionDB, CategoryDB, SubcategoryDB } from '../types';
+import toast from 'react-hot-toast';
+import CurrencyInput from '../components/CurrencyInput';
 
 const Transactions: React.FC = () => {
   const { user } = useAuth()
+  // ... (previous states)
   const [searchTerm, setSearchTerm] = useState('');
   const [typeFilter, setTypeFilter] = useState<'all' | 'expense' | 'income'>('all');
   const [monthFilter, setMonthFilter] = useState<string>(() => {
@@ -17,6 +20,20 @@ const Transactions: React.FC = () => {
   const [transactions, setTransactions] = useState<TransactionDB[]>([])
   const [hasMore, setHasMore] = useState(true)
   const [categories, setCategories] = useState<CategoryDB[]>([])
+  
+  // New States for Subcategories and Modal
+  const [allSubcategories, setAllSubcategories] = useState<SubcategoryDB[]>([]) // Raw data
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  
+  // New Transaction Form State
+  const [newTx, setNewTx] = useState({
+    description: '',
+    amount: '',
+    date: new Date().toISOString().slice(0, 10),
+    type: 'expense' as 'expense' | 'income',
+    categoryId: '',
+    subcategoryId: ''
+  });
 
   const categoryName = useMemo(() => {
     const map = new Map<string, string>()
@@ -24,13 +41,33 @@ const Transactions: React.FC = () => {
     return map
   }, [categories])
 
-  const loadCategories = async () => {
+  // Map subcategory ID to Name for display
+  const subcategoryName = useMemo(() => {
+      const map = new Map<string, string>()
+      allSubcategories.forEach(s => map.set(s.id, s.name))
+      return map
+  }, [allSubcategories])
+
+  const loadCategoriesAndSubcategories = async () => {
     if (!user) return
-    const { data } = await supabase.from('categories').select('*').eq('user_id', user.id)
-    setCategories(data || [])
+    
+    try {
+        // Load Categories
+        const { data: cats, error: catError } = await supabase.from('categories').select('*').eq('user_id', user.id)
+        if (catError) console.error('Error loading categories:', catError)
+        setCategories(cats || [])
+
+        // Load Subcategories (Load ALL to ensure we have them)
+        const { data: subs, error: subError } = await supabase.from('subcategories').select('*')
+        if (subError) console.error('Error loading subcategories:', subError)
+        setAllSubcategories(subs || [])
+    } catch (e) {
+        console.error('Exception loading data:', e)
+    }
   }
 
   const loadTransactions = async (reset = false) => {
+    // ... (rest of the function)
     if (!user) return
     const start = `${monthFilter}-01`
     const endDate = new Date(Number(monthFilter.slice(0,4)), Number(monthFilter.slice(5,7)), 1)
@@ -45,13 +82,56 @@ const Transactions: React.FC = () => {
     setHasMore((data?.length || 0) === pageSize)
   }
 
-  useEffect(() => { loadCategories() }, [user])
+  useEffect(() => { loadCategoriesAndSubcategories() }, [user])
   useEffect(() => { setPage(0); loadTransactions(true) }, [user, typeFilter, monthFilter])
   useEffect(() => { if (page > 0) loadTransactions() }, [page])
 
+  // Filtered Subcategories for the Modal Select
+  // SIMPLIFIED LOGIC: Filter directly from allSubcategories based on selected categoryId
+  const availableSubcategories = useMemo(() => {
+      if (!newTx.categoryId) return []
+      const filtered = allSubcategories.filter(s => s.category_id === newTx.categoryId)
+      return filtered
+  }, [newTx.categoryId, allSubcategories])
+
+  // Reset subcategory when category changes
+  useEffect(() => {
+      setNewTx(prev => ({ ...prev, subcategoryId: '' }))
+  }, [newTx.categoryId])
+
+  const handleAddTransaction = async () => {
+      if (!user || !newTx.amount || !newTx.categoryId || !newTx.description) {
+          toast.error('Preencha os campos obrigatórios');
+          return;
+      }
+
+      const { error } = await supabase.from('transactions').insert({
+          user_id: user.id,
+          description: newTx.description,
+          amount: newTx.type === 'expense' ? -Math.abs(parseFloat(newTx.amount)) : Math.abs(parseFloat(newTx.amount)),
+          date: newTx.date,
+          type: newTx.type,
+          category_id: newTx.categoryId,
+          subcategory_id: newTx.subcategoryId || null
+      })
+
+      if (error) {
+          toast.error('Erro ao salvar transação');
+          console.error(error);
+      } else {
+          toast.success('Transação salva com sucesso!');
+          setIsModalOpen(false);
+          setNewTx({ description: '', amount: '', date: new Date().toISOString().slice(0, 10), type: 'expense', categoryId: '', subcategoryId: '' });
+          loadTransactions(true);
+      }
+  }
+
   const filteredTransactions = transactions.filter((tx) => {
     const catName = categoryName.get(tx.category_id) || ''
-    const matchesSearch = catName.toLowerCase().includes(searchTerm.toLowerCase()) || (tx.description || '').toLowerCase().includes(searchTerm.toLowerCase())
+    const subName = tx.subcategory_id ? subcategoryName.get(tx.subcategory_id) || '' : ''
+    const matchesSearch = catName.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                          subName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                          (tx.description || '').toLowerCase().includes(searchTerm.toLowerCase())
     return matchesSearch
   });
 
@@ -73,7 +153,10 @@ const Transactions: React.FC = () => {
                     Gerencie e visualize todas as movimentações financeiras.
                   </p>
                 </div>
-                <button className="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-primary text-background-light dark:bg-background-light dark:text-primary text-sm font-bold leading-normal tracking-[0.015em] gap-2 hover:opacity-90 transition-opacity">
+                <button 
+                    onClick={() => setIsModalOpen(true)}
+                    className="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-primary text-background-light dark:bg-background-light dark:text-primary text-sm font-bold leading-normal tracking-[0.015em] gap-2 hover:opacity-90 transition-opacity"
+                >
                   <span className="material-symbols-outlined text-lg">add</span>
                   <span className="truncate">Nova Transação</span>
                 </button>
@@ -85,7 +168,7 @@ const Transactions: React.FC = () => {
                   <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-neutral-500">search</span>
                   <input 
                     type="text" 
-                    placeholder="Buscar por categoria..." 
+                    placeholder="Buscar por categoria, subcategoria ou descrição..." 
                     className="w-full pl-10 bg-primary/5 dark:bg-background-light/5 border-primary/10 dark:border-background-light/10 rounded-lg h-10 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
@@ -95,7 +178,7 @@ const Transactions: React.FC = () => {
                   <select 
                     className="w-full bg-primary/5 dark:bg-background-light/5 border-primary/10 dark:border-background-light/10 rounded-lg h-10 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
                     value={typeFilter}
-                    onChange={(e) => setTypeFilter(e.target.value)}
+                    onChange={(e) => setTypeFilter(e.target.value as any)}
                   >
                     <option value="all">Todas</option>
                     <option value="expense">Despesas</option>
@@ -117,7 +200,7 @@ const Transactions: React.FC = () => {
                 {/* Table Header (Hidden on mobile) */}
                 <div className="hidden md:grid grid-cols-12 gap-4 px-6 py-3 bg-primary/5 dark:bg-background-light/5 border-b border-primary/10 dark:border-background-light/10 text-sm font-bold text-neutral-600 dark:text-neutral-300">
                   <div className="col-span-1"></div>
-                  <div className="col-span-5">Categoria/Descrição</div>
+                  <div className="col-span-5">Categoria / Sub / Descrição</div>
                   <div className="col-span-3">Data</div>
                   <div className="col-span-3 text-right">Valor</div>
                 </div>
@@ -137,8 +220,16 @@ const Transactions: React.FC = () => {
                             <span className="material-symbols-outlined">receipt_long</span>
                           </div>
                           <div>
-                            <p className="font-bold text-primary dark:text-background-light text-base">{categoryName.get(tx.category_id) || 'Categoria'}</p>
-                            <p className="md:hidden text-sm text-neutral-500 dark:text-neutral-400">{tx.date}</p>
+                            <div className="flex items-center gap-2">
+                                <p className="font-bold text-primary dark:text-background-light text-base">{categoryName.get(tx.category_id) || 'Categoria'}</p>
+                                {tx.subcategory_id && (
+                                    <span className="text-xs bg-neutral-100 dark:bg-neutral-800 text-neutral-500 px-2 py-0.5 rounded-full">
+                                        {subcategoryName.get(tx.subcategory_id)}
+                                    </span>
+                                )}
+                            </div>
+                            <p className="text-sm text-neutral-500 dark:text-neutral-400">{tx.description || 'Sem descrição'}</p>
+                            <p className="md:hidden text-xs text-neutral-400 mt-1">{tx.date}</p>
                           </div>
                         </div>
                         {/* Mobile Amount */}
@@ -184,6 +275,115 @@ const Transactions: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* New Transaction Modal */}
+      {isModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+          <div className="w-full max-w-lg rounded-xl bg-white dark:bg-neutral-800 p-6 shadow-xl border border-neutral-200 dark:border-neutral-700 max-h-[90vh] overflow-y-auto">
+            <h3 className="text-xl font-bold text-neutral-900 dark:text-white mb-6">Nova Transação</h3>
+            
+            <div className="flex flex-col gap-4">
+                {/* Tipo */}
+                <div className="flex gap-2 p-1 bg-neutral-100 dark:bg-neutral-700 rounded-lg">
+                    <button 
+                        onClick={() => setNewTx({...newTx, type: 'expense'})}
+                        className={`flex-1 py-2 rounded-md font-bold text-sm transition-all ${newTx.type === 'expense' ? 'bg-white dark:bg-neutral-600 text-red-500 shadow-sm' : 'text-neutral-500'}`}
+                    >
+                        Despesa
+                    </button>
+                    <button 
+                        onClick={() => setNewTx({...newTx, type: 'income'})}
+                        className={`flex-1 py-2 rounded-md font-bold text-sm transition-all ${newTx.type === 'income' ? 'bg-white dark:bg-neutral-600 text-green-500 shadow-sm' : 'text-neutral-500'}`}
+                    >
+                        Receita
+                    </button>
+                </div>
+
+                {/* Valor */}
+                <div className="flex flex-col gap-2">
+                    <label className="text-sm font-medium text-neutral-700 dark:text-neutral-300">Valor</label>
+                    <CurrencyInput 
+                        className="w-full bg-neutral-50 dark:bg-neutral-900 border border-neutral-300 dark:border-neutral-700 rounded-lg h-12 px-4 text-lg font-bold focus:outline-none focus:ring-2 focus:ring-primary/20 dark:text-white"
+                        value={newTx.amount}
+                        onValueChange={(val) => setNewTx({...newTx, amount: val})}
+                        autoFocus
+                    />
+                </div>
+
+                {/* Descrição */}
+                <div className="flex flex-col gap-2">
+                    <label className="text-sm font-medium text-neutral-700 dark:text-neutral-300">Descrição</label>
+                    <input 
+                        type="text"
+                        placeholder="Ex: Compras da semana"
+                        className="w-full bg-neutral-50 dark:bg-neutral-900 border border-neutral-300 dark:border-neutral-700 rounded-lg h-10 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 dark:text-white"
+                        value={newTx.description}
+                        onChange={(e) => setNewTx({...newTx, description: e.target.value})}
+                    />
+                </div>
+
+                {/* Categoria */}
+                <div className="flex flex-col gap-2">
+                    <label className="text-sm font-medium text-neutral-700 dark:text-neutral-300">Categoria</label>
+                    <select 
+                        className="w-full bg-neutral-50 dark:bg-neutral-900 border border-neutral-300 dark:border-neutral-700 rounded-lg h-10 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 dark:text-white"
+                        value={newTx.categoryId}
+                        onChange={(e) => setNewTx({...newTx, categoryId: e.target.value})}
+                    >
+                        <option value="">Selecione...</option>
+                        {categories.filter(c => c.type === newTx.type).map(cat => (
+                            <option key={cat.id} value={cat.id}>{cat.name}</option>
+                        ))}
+                    </select>
+                </div>
+
+                {/* Subcategoria (Condicional) */}
+                <div className="flex flex-col gap-2">
+                    <label className={`text-sm font-medium text-neutral-700 dark:text-neutral-300 ${!newTx.categoryId ? 'opacity-50' : ''}`}>Subcategoria</label>
+                    <select 
+                        className="w-full bg-neutral-50 dark:bg-neutral-900 border border-neutral-300 dark:border-neutral-700 rounded-lg h-10 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 dark:text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                        value={newTx.subcategoryId}
+                        onChange={(e) => setNewTx({...newTx, subcategoryId: e.target.value})}
+                        disabled={!newTx.categoryId || availableSubcategories.length === 0}
+                    >
+                        <option value="">{availableSubcategories.length === 0 ? (newTx.categoryId ? 'Nenhuma subcategoria disponível' : 'Selecione uma categoria primeiro') : 'Selecione (Opcional)'}</option>
+                        {availableSubcategories.map((sub: any) => (
+                            <option key={sub.id} value={sub.id}>{sub.name}</option>
+                        ))}
+                    </select>
+                </div>
+
+                {/* Data */}
+                <div className="flex flex-col gap-2">
+                    <label className="text-sm font-medium text-neutral-700 dark:text-neutral-300">Data</label>
+                    <input 
+                        type="date"
+                        className="w-full bg-neutral-50 dark:bg-neutral-900 border border-neutral-300 dark:border-neutral-700 rounded-lg h-10 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 dark:text-white"
+                        value={newTx.date}
+                        onChange={(e) => setNewTx({...newTx, date: e.target.value})}
+                    />
+                </div>
+            </div>
+
+            <div className="flex items-center justify-end gap-3 mt-8">
+              <button 
+                onClick={() => setIsModalOpen(false)} 
+                className="px-4 py-2 rounded-lg bg-neutral-100 dark:bg-neutral-700 text-neutral-700 dark:text-neutral-200 font-medium hover:bg-neutral-200 dark:hover:bg-neutral-600 transition-colors"
+              >
+                Cancelar
+              </button>
+              <button 
+                onClick={handleAddTransaction} 
+                disabled={!newTx.amount || !newTx.categoryId || !newTx.description}
+                className="px-4 py-2 rounded-lg bg-primary text-white font-medium hover:opacity-90 transition-opacity disabled:opacity-50"
+              >
+                Salvar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 };

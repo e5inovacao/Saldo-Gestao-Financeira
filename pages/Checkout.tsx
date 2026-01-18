@@ -51,7 +51,18 @@ const Checkout: React.FC = () => {
 
           if (customerError || !customerData?.id) {
               console.error('Erro ao criar cliente Asaas:', customerError);
-              throw new Error('Falha ao registrar cliente financeiro. Verifique seus dados.');
+              let errorMsg = 'Falha ao registrar cliente financeiro. Verifique seus dados.';
+              
+              // Tentar extrair mensagem específica
+              if (customerError && typeof customerError === 'object') {
+                  // @ts-ignore
+                  const ctx = await customerError.context?.json?.().catch(() => null)
+                  if (ctx && ctx.error) errorMsg = ctx.error
+                  else if (customerError.message) errorMsg = customerError.message
+              }
+              
+              toast.error(errorMsg);
+              throw new Error(errorMsg);
           }
 
           currentCustomerId = customerData.id;

@@ -4,7 +4,7 @@ import Header from '../components/Header';
 import { ResponsiveContainer, BarChart, Bar, XAxis, Tooltip, Legend } from 'recharts';
 import { supabase } from '../src/lib/supabase';
 import { useAuth } from '../src/contexts/AuthContext';
-import type { CategoryDB, TransactionDB, DailyFlow, MonthlyFlow } from '../types';
+import type { CategoryDB, TransactionDB, DailyFlow, MonthlyFlow, SubcategoryDB } from '../types';
 import toast from 'react-hot-toast';
 
 const Dashboard: React.FC = () => {
@@ -13,6 +13,7 @@ const Dashboard: React.FC = () => {
   const { user } = useAuth()
 
   const [categories, setCategories] = useState<CategoryDB[]>([])
+  const [allSubcategories, setAllSubcategories] = useState<SubcategoryDB[]>([])
   const [recentTransactions, setRecentTransactions] = useState<TransactionDB[]>([])
   const [monthTransactions, setMonthTransactions] = useState<TransactionDB[]>([])
   const [yearTransactions, setYearTransactions] = useState<TransactionDB[]>([])
@@ -29,8 +30,8 @@ const Dashboard: React.FC = () => {
   
   // Form States
   const [transactionType, setTransactionType] = useState<'expense' | 'income'>('expense');
-  const [selectedCategory, setSelectedCategory] = useState<string>('');
-  const [selectedSubcategory, setSelectedSubcategory] = useState<string>('');
+  const [selectedCategory, setSelectedCategory] = useState<string>(''); // Now storing ID
+  const [selectedSubcategory, setSelectedSubcategory] = useState<string>(''); // Storing ID
   
   // Get current date in YYYY-MM-DD format respecting local timezone
   const getCurrentDate = () => {
@@ -50,14 +51,20 @@ const Dashboard: React.FC = () => {
 
   // Filter Subcategories based on selected Category
   const availableSubcategories = useMemo(() => {
-    const categoryData = availableCategories.find(c => c.name === selectedCategory);
-    return [];
-  }, [selectedCategory, availableCategories]);
+    if (!selectedCategory) return [];
+    return allSubcategories.filter(s => s.category_id === selectedCategory);
+  }, [selectedCategory, allSubcategories]);
 
   // Reset Category when Type changes
   useEffect(() => {
     if (availableCategories.length > 0) {
-      setSelectedCategory(availableCategories[0].name);
+      // Prioritize "Alimentação"
+      const alimentacao = availableCategories.find(c => c.name.toLowerCase().includes('alimentação') || c.name.toLowerCase().includes('alimentacao'))
+      if (alimentacao) {
+          setSelectedCategory(alimentacao.id)
+      } else {
+          setSelectedCategory(availableCategories[0].id);
+      }
     } else {
       setSelectedCategory('');
     }
@@ -65,10 +72,11 @@ const Dashboard: React.FC = () => {
 
   // Reset Subcategory when Category changes
   useEffect(() => {
+    // If there are subcategories, select the first one automatically since it's mandatory
     if (availableSubcategories.length > 0) {
-      setSelectedSubcategory(availableSubcategories[0]);
+        setSelectedSubcategory(availableSubcategories[0].id)
     } else {
-      setSelectedSubcategory('');
+        setSelectedSubcategory('');
     }
   }, [selectedCategory, availableSubcategories]);
 
@@ -189,7 +197,6 @@ const Dashboard: React.FC = () => {
   useEffect(() => {
     const fetchData = async () => {
       if (!user) return
-      console.log('[Dashboard] Fetch start for user:', user.id)
       const { data: cats, error: catErr } = await supabase
         .from('categories')
         .select('*')
@@ -197,7 +204,6 @@ const Dashboard: React.FC = () => {
         .order('created_at', { ascending: true })
       if (catErr) toast.error('Erro ao carregar categorias')
       else setCategories(cats || [])
-      console.log('[Dashboard] Categorias:', (cats || []).length)
 
       const now = new Date()
       const startMonth = new Date(now.getFullYear(), now.getMonth(), 1)
@@ -210,7 +216,6 @@ const Dashboard: React.FC = () => {
         .lt('date', endMonth.toISOString().slice(0,10))
         .order('date', { ascending: false })
       setMonthTransactions(monthTx || [])
-      console.log('[Dashboard] Month transactions:', (monthTx || []).length)
 
       const startYear = new Date(now.getFullYear(), 0, 1)
       const endYear = new Date(now.getFullYear() + 1, 0, 1)
@@ -221,7 +226,6 @@ const Dashboard: React.FC = () => {
         .gte('date', startYear.toISOString().slice(0,10))
         .lt('date', endYear.toISOString().slice(0,10))
       setYearTransactions(yearTx || [])
-      console.log('[Dashboard] Year transactions:', (yearTx || []).length)
 
       const { data: recentTx } = await supabase
         .from('transactions')
@@ -230,7 +234,10 @@ const Dashboard: React.FC = () => {
         .order('date', { ascending: false })
         .limit(5)
       setRecentTransactions(recentTx || [])
-      console.log('[Dashboard] Recent transactions:', (recentTx || []).length)
+
+      // Fetch Subcategories
+      const { data: subs } = await supabase.from('subcategories').select('*')
+      setAllSubcategories(subs || [])
     }
     fetchData()
   }, [user])
@@ -251,7 +258,7 @@ const Dashboard: React.FC = () => {
       toast.error('Preencha valor e categoria')
       return
     }
-    const cat = availableCategories.find(c => c.name === selectedCategory)
+    const cat = availableCategories.find(c => c.id === selectedCategory)
     if (!cat) {
       toast.error('Categoria inválida')
       return
@@ -259,6 +266,7 @@ const Dashboard: React.FC = () => {
     const { error } = await supabase.from('transactions').insert({
       user_id: user.id,
       category_id: cat.id,
+      subcategory_id: selectedSubcategory || null,
       description: null,
       amount: numericAmount,
       date,
@@ -266,11 +274,9 @@ const Dashboard: React.FC = () => {
     })
     if (error) {
       toast.error('Erro ao salvar transação')
-      console.error('[Dashboard] saveTransaction error:', error)
       return
     }
     toast.success('Transação salva com sucesso')
-    console.log('[Dashboard] Transação salva:', { amount: numericAmount, type: transactionType, date, category: cat.name })
     setAmount('')
     setDate(getCurrentDate())
     const { data: monthTx } = await supabase
@@ -358,7 +364,7 @@ const Dashboard: React.FC = () => {
                       onChange={(e) => setSelectedCategory(e.target.value)}
                     >
                       {availableCategories.map(cat => (
-                        <option key={cat.id} value={cat.name}>{cat.name}</option>
+                        <option key={cat.id} value={cat.id}>{cat.name}</option>
                       ))}
                     </select>
                   </div>
@@ -367,19 +373,19 @@ const Dashboard: React.FC = () => {
                       Subcategoria
                     </label>
                     <select
-                      className="w-full bg-primary/5 dark:bg-background-light/5 border-primary/10 dark:border-background-light/10 rounded-lg h-10 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
+                      className="w-full bg-primary/5 dark:bg-background-light/5 border-primary/10 dark:border-background-light/10 rounded-lg h-10 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 disabled:opacity-50"
                       id="subcategoria"
                       value={selectedSubcategory}
                       onChange={(e) => setSelectedSubcategory(e.target.value)}
                       disabled={availableSubcategories.length === 0}
                     >
-                       {availableSubcategories.length > 0 ? (
-                          availableSubcategories.map(sub => (
-                            <option key={sub} value={sub}>{sub}</option>
-                          ))
-                        ) : (
-                          <option value="">Nenhuma subcategoria</option>
-                        )}
+                       {availableSubcategories.length === 0 ? (
+                           <option value="">{selectedCategory ? 'Nenhuma subcategoria disponível' : 'Selecione uma categoria'}</option>
+                       ) : (
+                           availableSubcategories.map(sub => (
+                             <option key={sub.id} value={sub.id}>{sub.name}</option>
+                           ))
+                       )}
                     </select>
                   </div>
                   <div className="flex flex-col gap-2 lg:col-span-2">

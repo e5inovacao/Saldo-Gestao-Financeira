@@ -5,16 +5,12 @@ import { supabase } from '../src/lib/supabase';
 import type { ProfileDB } from '../types';
 import toast from 'react-hot-toast';
 
-// Minimalist Animated Avatars (Dicebear Micah/Avataaars style)
+// Local Images from public/img_perfil_default
 const PROFILE_OPTIONS = [
-  // Men
-  'https://api.dicebear.com/9.x/micah/svg?seed=Felix&backgroundColor=f0f0f0',
-  'https://api.dicebear.com/9.x/micah/svg?seed=Joshua&backgroundColor=e0e0e0',
-  'https://api.dicebear.com/9.x/micah/svg?seed=Oliver&backgroundColor=d0d0d0',
-  // Women
-  'https://api.dicebear.com/9.x/micah/svg?seed=Amelia&backgroundColor=ffdfbf',
-  'https://api.dicebear.com/9.x/micah/svg?seed=Julia&backgroundColor=ffdfd0',
-  'https://api.dicebear.com/9.x/micah/svg?seed=Dorothy&backgroundColor=ffe0e0'
+  '/img_perfil_default/perfil_01.png',
+  '/img_perfil_default/perfil_02.png',
+  '/img_perfil_default/perfil_03.png',
+  '/img_perfil_default/perfil_04.png',
 ];
 
 const Settings: React.FC = () => {
@@ -25,6 +21,7 @@ const Settings: React.FC = () => {
   const navigate = useNavigate();
   const [fullName, setFullName] = useState('')
   const [email, setEmail] = useState('')
+  const fileInputRef = React.useRef<HTMLInputElement>(null)
 
   const loadProfile = async () => {
     if (!user) return
@@ -39,8 +36,9 @@ const Settings: React.FC = () => {
   const handleLogout = async () => {
     try {
       await signOut()
-    } catch (e: any) {
-      console.warn('[Auth] signOut warning:', e?.message || e)
+    } catch (e) {
+      const error = e as Error
+      console.warn('[Auth] signOut warning:', error?.message || error)
     }
     setIsLogoutModalOpen(false);
     navigate('/');
@@ -54,10 +52,27 @@ const Settings: React.FC = () => {
     if (error) toast.error('Erro ao salvar avatar')
     else {
       toast.success('Foto de perfil atualizada')
-      // Força atualização do contexto para refletir no Header
       if (refreshSession) refreshSession()
     }
   };
+
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+      const file = event.target.files?.[0]
+      if (!file) return
+
+      if (file.size > 2 * 1024 * 1024) { // 2MB limit
+          toast.error('A imagem deve ter no máximo 2MB')
+          return
+      }
+
+      const reader = new FileReader()
+      reader.onloadend = async () => {
+          const base64String = reader.result as string
+          // Save Base64 directly to profile
+          handlePhotoSelect(base64String)
+      }
+      reader.readAsDataURL(file)
+  }
 
   return (
     <div className="font-display-jakarta bg-background-light dark:bg-background-dark text-[#141414] dark:text-white min-h-screen">
@@ -65,26 +80,27 @@ const Settings: React.FC = () => {
         <div className="layout-container flex h-full grow flex-col">
           <div className="flex flex-1 justify-center p-4 sm:p-6 md:p-8">
             <div className="layout-content-container flex w-full max-w-6xl flex-1 gap-8">
-              {/* SideNavBar */}
+              {/* SideNavBar (Existing code...) */}
               <aside className="hidden md:flex flex-col w-64">
                 <div className="flex flex-col gap-4">
                   <div className="flex gap-3 items-center">
                     <div
-                      className="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10 bg-white"
+                      className="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10 bg-white shadow-sm border border-neutral-200"
                       data-alt="User avatar image"
                       style={{
                         backgroundImage: `url("${currentPhoto}")`,
                       }}
                     ></div>
                     <div className="flex flex-col">
-                      <h1 className="text-[#141414] dark:text-neutral-100 text-base font-bold leading-normal">
+                      <h1 className="text-[#141414] dark:text-neutral-100 text-base font-bold leading-normal truncate max-w-[160px]">
                         {fullName || 'Seu Nome'}
                       </h1>
-                      <p className="text-neutral-500 dark:text-neutral-400 text-sm font-normal leading-normal">
+                      <p className="text-neutral-500 dark:text-neutral-400 text-sm font-normal leading-normal truncate max-w-[160px]">
                         {email || 'seu@email.com'}
                       </p>
                     </div>
                   </div>
+                  {/* ... Navigation Links ... */}
                   <nav className="flex flex-col gap-2 mt-4">
                     <Link to="/settings" className="flex items-center gap-3 px-3 py-2 rounded-lg bg-primary/10 dark:bg-primary/20 transition-colors">
                       <span className="material-symbols-outlined text-[#141414] dark:text-white text-2xl">person</span>
@@ -135,6 +151,7 @@ const Settings: React.FC = () => {
                 <div className="flex flex-col gap-8">
                   {/* Card: Meu Perfil */}
                   <section className="flex flex-col gap-6 p-6 bg-white dark:bg-neutral-800/50 border border-neutral-200 dark:border-neutral-700 rounded-xl shadow-sm">
+                    {/* ... Existing Profile Card Content ... */}
                     <div className="flex flex-col gap-1">
                       <h2 className="text-xl font-bold text-[#141414] dark:text-white">Meu Perfil</h2>
                       <p className="text-neutral-500 dark:text-neutral-400">Suas informações pessoais.</p>
@@ -164,6 +181,7 @@ const Settings: React.FC = () => {
                         <span className="truncate">Alterar foto</span>
                       </button>
                     </div>
+                    {/* ... Inputs ... */}
                     <div className="flex flex-col sm:flex-row flex-wrap items-end gap-4">
                       <label className="flex flex-col min-w-40 flex-1">
                         <p className="text-[#141414] dark:text-neutral-200 text-base font-medium leading-normal pb-2">
@@ -186,6 +204,7 @@ const Settings: React.FC = () => {
                         />
                       </label>
                     </div>
+                    {/* ... Password Reset ... */}
                     <div className="flex flex-col sm:flex-row justify-between items-center gap-4 pt-4 border-t border-neutral-200 dark:border-neutral-700">
                       <p className="text-neutral-500 dark:text-neutral-400 text-center sm:text-left">
                         Para alterar sua senha, enviaremos um link de redefinição para seu e-mail.
@@ -194,17 +213,37 @@ const Settings: React.FC = () => {
                         <span className="truncate">Alterar senha</span>
                       </button>
                     </div>
+                    {/* ... Buttons ... */}
                     <div className="flex justify-end gap-3 mt-4">
-                      <button className="flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-11 px-6 bg-primary/10 dark:bg-primary/20 text-primary dark:text-white text-sm font-bold leading-normal tracking-[0.015em] hover:bg-primary/20 transition-colors">
+                      <button onClick={() => { loadProfile(); }} className="flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-11 px-6 bg-primary/10 dark:bg-primary/20 text-primary dark:text-white text-sm font-bold leading-normal tracking-[0.015em] hover:bg-primary/20 transition-colors">
                         <span className="truncate">Cancelar</span>
                       </button>
-                      <button onClick={async () => { if (!user) return; const { error } = await supabase.from('profiles').update({ full_name: fullName, avatar_url: currentPhoto, updated_at: new Date().toISOString() }).eq('id', user.id); if (error) toast.error('Erro ao salvar perfil'); else toast.success('Perfil atualizado'); }} className="flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-11 px-6 bg-primary dark:bg-white text-white dark:text-primary text-sm font-bold leading-normal tracking-[0.015em] hover:opacity-90 transition-opacity">
+                      <button onClick={async () => { if (!user) return; const { error } = await supabase.from('profiles').update({ full_name: fullName, updated_at: new Date().toISOString() }).eq('id', user.id); if (error) toast.error('Erro ao salvar perfil'); else toast.success('Perfil atualizado'); }} className="flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-11 px-6 bg-primary dark:bg-white text-white dark:text-primary text-sm font-bold leading-normal tracking-[0.015em] hover:opacity-90 transition-opacity">
                         <span className="truncate">Salvar Alterações</span>
                       </button>
                     </div>
                   </section>
 
-                  {/* Mobile Logout Button (Visible only on small screens) */}
+                  {/* Card: Suporte */}
+                  <section className="flex flex-col gap-6 p-6 bg-white dark:bg-neutral-800/50 border border-neutral-200 dark:border-neutral-700 rounded-xl shadow-sm">
+                    <div className="flex flex-col gap-1">
+                        <h2 className="text-xl font-bold text-[#141414] dark:text-white">Suporte</h2>
+                        <p className="text-neutral-500 dark:text-neutral-400">Precisa de ajuda? Entre em contato com nossa equipe.</p>
+                    </div>
+                    <div className="flex items-center gap-4 p-4 rounded-lg bg-primary/5 border border-primary/10">
+                        <div className="flex items-center justify-center size-12 rounded-full bg-primary/10 text-primary">
+                            <span className="material-symbols-outlined">support_agent</span>
+                        </div>
+                        <div className="flex flex-col">
+                            <p className="font-bold text-[#141414] dark:text-white">Fale com a gente</p>
+                            <a href="mailto:equipe.e5inovacao@gmail.com" className="text-primary hover:underline font-medium">
+                                equipe.e5inovacao@gmail.com
+                            </a>
+                        </div>
+                    </div>
+                  </section>
+
+                  {/* Mobile Logout Button */}
                   <div className="md:hidden">
                     <button 
                       onClick={() => setIsLogoutModalOpen(true)}
@@ -242,7 +281,7 @@ const Settings: React.FC = () => {
                 </button>
              </div>
              
-             <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+             <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-6">
                {PROFILE_OPTIONS.map((url, index) => (
                  <button
                    key={index}
@@ -262,6 +301,24 @@ const Settings: React.FC = () => {
                ))}
              </div>
 
+             <div className="border-t border-neutral-200 dark:border-neutral-700 pt-6">
+                <p className="text-sm font-bold text-neutral-600 dark:text-neutral-300 mb-3">Ou envie sua própria foto</p>
+                <input 
+                    type="file" 
+                    accept="image/*" 
+                    className="hidden" 
+                    ref={fileInputRef}
+                    onChange={handleFileUpload}
+                />
+                <button 
+                    onClick={() => fileInputRef.current?.click()}
+                    className="flex w-full items-center justify-center gap-2 py-3 border-2 border-dashed border-neutral-300 dark:border-neutral-600 rounded-xl hover:border-primary hover:bg-primary/5 transition-colors text-neutral-500 hover:text-primary"
+                >
+                    <span className="material-symbols-outlined">cloud_upload</span>
+                    <span className="font-medium">Carregar imagem (max 2MB)</span>
+                </button>
+             </div>
+
              <div className="mt-6 flex justify-end">
                <button
                   onClick={() => setIsPhotoModalOpen(false)}
@@ -274,7 +331,7 @@ const Settings: React.FC = () => {
         </div>
       )}
 
-      {/* Logout Confirmation Modal */}
+      {/* Logout Confirmation Modal (Existing code...) */}
       {isLogoutModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
           <div className="w-full max-w-sm rounded-xl bg-white dark:bg-neutral-800 p-6 shadow-xl border border-neutral-200 dark:border-neutral-700">

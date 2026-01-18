@@ -184,7 +184,10 @@ const Categories: React.FC = () => {
   const categoriesIncome = useMemo(() => categories.filter(c => c.type === 'income'), [categories])
   const subMap = useMemo(() => {
     const m: Record<string, SubcategoryDB[]> = {}
-    subcategories.forEach(s => { (m[s.category_id] ||= []).push(s) })
+    subcategories.forEach(s => { 
+        if (!m[s.category_id]) m[s.category_id] = []
+        m[s.category_id].push(s) 
+    })
     return m
   }, [subcategories])
 

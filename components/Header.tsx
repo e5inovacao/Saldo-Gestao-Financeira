@@ -66,6 +66,16 @@ const Header: React.FC = () => {
           >
             Metas
           </Link>
+          <Link
+            to="/limits"
+            className={`text-sm font-medium leading-normal transition-colors ${
+              isActive('/limits')
+                ? 'text-primary dark:text-background-light'
+                : 'text-neutral-500 dark:text-neutral-400 hover:text-primary dark:hover:text-background-light'
+            }`}
+          >
+            Limites
+          </Link>
            <Link
             to="/categories"
             className={`text-sm font-medium leading-normal transition-colors ${

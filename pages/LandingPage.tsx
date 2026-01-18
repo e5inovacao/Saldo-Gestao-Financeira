@@ -36,13 +36,13 @@ const LandingPage: React.FC = () => {
                     </div>
                     <Link
                       to="/signup"
-                      className="flex min-w-[84px] w-full md:w-auto max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 md:h-12 md:px-5 bg-primary-landing text-white text-sm font-bold leading-normal tracking-[0.015em] md:text-base hover:bg-blue-700 transition-colors"
+                      className="flex min-w-[84px] w-full md:w-auto max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 md:h-12 md:px-5 bg-transparent border-2 border-primary-landing text-primary-landing text-sm font-bold leading-normal tracking-[0.015em] md:text-base hover:bg-primary-landing hover:text-white transition-colors"
                     >
-                      <span className="truncate">Teste grátis por 7 dias</span>
+                      <span className="truncate">Comece o Teste Grátis</span>
                     </Link>
                     <Link
                         to="/login"
-                        className="flex min-w-[84px] w-full md:w-auto max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 md:h-12 md:px-5 bg-white text-primary-landing border border-primary-landing text-sm font-bold leading-normal tracking-[0.015em] md:text-base hover:bg-blue-50 transition-colors"
+                        className="flex min-w-[84px] w-full md:w-auto max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 md:h-12 md:px-5 bg-transparent text-primary-landing text-sm font-bold leading-normal tracking-[0.015em] md:text-base hover:text-green-700 transition-colors"
                     >
                         <span className="truncate">Fazer Login</span>
                     </Link>
@@ -104,7 +104,7 @@ const LandingPage: React.FC = () => {
                         <span className="text-base font-bold leading-tight">/mês</span>
                       </p>
                     </div>
-                    <Link to="/signup" className="flex w-full min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-100 text-sm font-bold leading-normal tracking-[0.015em] hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors">
+                    <Link to="/signup?plan=monthly" className="flex w-full min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-100 text-sm font-bold leading-normal tracking-[0.015em] hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors">
                       <span className="truncate">Escolher Plano</span>
                     </Link>
                     <div className="flex flex-col gap-3 pt-2">
@@ -130,7 +130,7 @@ const LandingPage: React.FC = () => {
                         <span className="text-base font-bold leading-tight">/ano</span>
                       </p>
                     </div>
-                    <Link to="/signup" className="flex w-full min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-primary-landing text-white text-sm font-bold leading-normal tracking-[0.015em] hover:bg-blue-700 transition-colors">
+                    <Link to="/signup" className="flex w-full min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-primary-landing text-white text-sm font-bold leading-normal tracking-[0.015em] hover:bg-primary-dark transition-colors">
                       <span className="truncate">Escolher Plano</span>
                     </Link>
                     <div className="flex flex-col gap-3 pt-2">
@@ -151,7 +151,7 @@ const LandingPage: React.FC = () => {
                         <span className="text-base font-bold leading-tight">/trimestre</span>
                       </p>
                     </div>
-                    <Link to="/signup" className="flex w-full min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-100 text-sm font-bold leading-normal tracking-[0.015em] hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors">
+                    <Link to="/signup?plan=quarterly" className="flex w-full min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-100 text-sm font-bold leading-normal tracking-[0.015em] hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors">
                       <span className="truncate">Escolher Plano</span>
                     </Link>
                     <div className="flex flex-col gap-3 pt-2">
