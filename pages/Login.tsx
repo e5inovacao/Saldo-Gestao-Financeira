@@ -16,7 +16,7 @@ const Login: React.FC = () => {
     const res = await signIn(email, password)
     setLoading(false)
     if (res.error) {
-      toast.error(res.error)
+      toast.error(res.error + '. Se o problema persistir, contate equipe.e5inovacao@gmail.com')
       return
     }
     toast.success('Login realizado com sucesso')

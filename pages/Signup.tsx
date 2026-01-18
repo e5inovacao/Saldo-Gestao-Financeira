@@ -126,14 +126,14 @@ const Signup: React.FC = () => {
 
           if (profileError) {
              console.error('Erro perfil:', profileError)
-             toast.error('Conta criada, mas houve erro ao salvar perfil.')
+             toast.error('Conta criada, mas houve erro ao salvar perfil. Se o problema persistir, contate equipe.e5inovacao@gmail.com')
           } else {
              toast.success('Conta criada com sucesso!')
              setStep(2)
           }
         }
       } catch (error: any) {
-        toast.error(error.message || 'Erro ao criar conta');
+        toast.error((error.message || 'Erro ao criar conta') + '. Se o problema persistir, contate equipe.e5inovacao@gmail.com');
       } finally {
         setLoading(false);
       }
@@ -158,9 +158,9 @@ const Signup: React.FC = () => {
       if (error) {
         console.error('Erro detalhado ao salvar perfil:', error)
         if (error.message.includes('Could not find the table') || error.code === '42P01') {
-           toast.error('Erro: Tabela do banco de dados não encontrada. Contate o administrador.')
+           toast.error('Erro: Tabela do banco de dados não encontrada. Contate o administrador em equipe.e5inovacao@gmail.com')
         } else {
-           toast.error('Erro ao salvar perfil: ' + error.message)
+           toast.error('Erro ao salvar perfil: ' + error.message + '. Se o problema persistir, contate equipe.e5inovacao@gmail.com')
         }
         return
       }

@@ -61,7 +61,7 @@ const Checkout: React.FC = () => {
                   else if (customerError.message) errorMsg = customerError.message
               }
               
-              toast.error(errorMsg);
+              toast.error(errorMsg + '. Se o problema persistir, contate equipe.e5inovacao@gmail.com');
               throw new Error(errorMsg);
           }
 
@@ -116,7 +116,7 @@ const Checkout: React.FC = () => {
          window.location.href = data.invoiceUrl;
       } else {
          console.warn('Status não reconhecido:', data.status);
-         toast.error(`Status do pagamento: ${data.status || 'Desconhecido'}. Verifique seu email.`);
+         toast.error(`Status do pagamento: ${data.status || 'Desconhecido'}. Verifique seu email ou contate equipe.e5inovacao@gmail.com`);
       }
     } catch (error: any) {
       console.error('Erro pagamento:', error);
@@ -125,7 +125,7 @@ const Checkout: React.FC = () => {
           const ctx = await error.context.json().catch(() => null);
           if (ctx && ctx.error) msg = ctx.error;
       }
-      toast.error('Falha no pagamento: ' + msg);
+      toast.error('Falha no pagamento: ' + msg + '. Se o problema persistir, contate equipe.e5inovacao@gmail.com');
     } finally {
       setLoading(false);
     }

@@ -21,7 +21,7 @@ const LandingPage: React.FC = () => {
                       data-alt="Ilustração de planejamento financeiro"
                       style={{
                         backgroundImage:
-                          'url("https://lh3.googleusercontent.com/aida-public/AB6AXuD9WVd-1RmJLJWB-hiaxYK8AkK9PTXhRtwD-B_aycf2UP96vSFmsBTw821ZxKNC0FooPg2h_Dy1XAFEe-HbmCDE96joIWLBwIkBjjZZIJV900hssaRMb32PZwdDipKmULpywLANZ6tZb_ToCCIEbKwhfpoNUzINOq_D6ZgPSYgnHwaskaSOaRNPVRdoA_qPPYTM1Jo997aqylgOxstKP1rNke4lVMvn-gwfkF66YBs3J3BvXut3DLSmMbnjsLFYYVuaB_U414l4ihQ")',
+                          'url("https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?q=80&w=2071&auto=format&fit=crop")',
                       }}
                     ></div>
                   </div>
@@ -36,7 +36,7 @@ const LandingPage: React.FC = () => {
                     </div>
                     <Link
                       to="/signup"
-                      className="flex min-w-[84px] w-full md:w-auto max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 md:h-12 md:px-5 bg-transparent border-2 border-primary-landing text-primary-landing text-sm font-bold leading-normal tracking-[0.015em] md:text-base hover:bg-primary-landing hover:text-white transition-colors"
+                      className="flex min-w-[84px] w-full md:w-auto max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 md:h-12 md:px-5 bg-transparent border-2 border-primary-landing text-primary-landing text-sm font-bold leading-normal tracking-[0.015em] md:text-base hover:bg-green-800 hover:border-green-800 hover:text-white transition-colors"
                     >
                       <span className="truncate">Comece o Teste Grátis</span>
                     </Link>
@@ -178,9 +178,9 @@ const LandingPage: React.FC = () => {
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                     {[
-                        { text: "Mudou completamente como eu lido com meu dinheiro. Agora sei exatamente para onde vai cada centavo.", name: "Carlos M.", time: "Usuário há 1 ano", img: "https://lh3.googleusercontent.com/aida-public/AB6AXuAqnXg6_y14R2iopi1Thqm0SzseYv9cHZ-39U5IgfPqfGc7CwNjOyHRNBtZzXAjx9kOCOC0RqOuvkEKWBdhSqNyE8aY5vzBk3-Lg3DIC7A-edxuMkcH6Phgcnh9MBSTqvQpL9z0nziSRP0YFPqr-ycD-GYPDFtLQLFUlM1IP9z8px5WE5RGF_vovWlbfx5mUQcgonZFp8wtX3UJhUI8ulyPV2cjUaULaXyAb7djcVE-4O46q-1KHvuaujnZTmxJwCWZhrFkHciVngY" },
-                        { text: "Consegui juntar dinheiro para minha viagem dos sonhos usando o sistema de metas. Simples e eficaz.", name: "Sofia L.", time: "Usuária há 6 meses", img: "https://lh3.googleusercontent.com/aida-public/AB6AXuCS5QnS5G-FMZi2duoqYItAM_zUq04DhxCniiTHSbp9J7dYs-XMkbw8BIDSd5WPYgwm1kiGY6BK1gkr6KOxJgUJT4jsq-6ecrBCF9aO3XfS9V_o7we2VBJ7JPezijH4Eb2S0P_SendAnpImpc3HOluo5sXF5jHP6tI0xuM-IaZ1UcHPE_qp8weRC-7lM1E6TV8YKUZHmcTWVcTeavZN2opqgD0OgEN-MORBXOSx5RaFse3UUmYKoy6ConPkSzyS8DNwkRW60xl0_BA" },
-                        { text: "Interface limpa e intuitiva. O melhor app de finanças pessoais que já usei.", name: "Marcos P.", time: "Usuário há 2 anos", img: "https://lh3.googleusercontent.com/aida-public/AB6AXuCz3KIS5KZfc5SIWsLgoZwEXm5fDpyJ9K_L23tbQHu-VDqWW9GNA73w3LfCFADy9cGKth3tHTq4ROsWb8hwt8gWmYPO2YRvL7DOBP2lRdiOIAwdjwOGvZtag6PpO_qOFbgU2h5O_3EvTb9a18aChm0Gl3uukUcHE6jryLpZRozdr_CW_dH3RXf9C7LHq2jV81e8l_7vkavMJwcCzfHGLAnXyVbbUmJoTNnbNuboCsy6ALklGNCySUbQyi9SliSBDEUXXzGXWCW5Dfc" }
+                        { text: "Mudou completamente como eu lido com meu dinheiro. Agora sei exatamente para onde vai cada centavo.", name: "Carlos M.", time: "Usuário há 1 ano", img: "/img_perfil_default/perfil_01.png" },
+                        { text: "Consegui juntar dinheiro para minha viagem dos sonhos usando o sistema de metas. Simples e eficaz.", name: "Sofia L.", time: "Usuária há 6 meses", img: "/img_perfil_default/perfil_02.png" },
+                        { text: "Interface limpa e intuitiva. O melhor app de finanças pessoais que já usei.", name: "Marcos P.", time: "Usuário há 2 anos", img: "/img_perfil_default/perfil_03.png" }
                     ].map((t, idx) => (
                         <div key={idx} className="p-6 rounded-xl border border-solid border-gray-200 dark:border-gray-700 bg-background-light dark:bg-background-dark">
                           <p className="text-gray-700 dark:text-gray-300">"{t.text}"</p>
@@ -230,6 +230,25 @@ const LandingPage: React.FC = () => {
                   </div>
                 </div>
               </section>
+
+              {/* Footer / Contact */}
+              <footer className="py-8 border-t border-gray-200 dark:border-gray-800">
+                <div className="px-4 text-center">
+                    <p className="text-gray-600 dark:text-gray-400 mb-2">
+                        Ficou com alguma dúvida? Entre em contato conosco.
+                    </p>
+                    <a 
+                        href="mailto:equipe.e5inovacao@gmail.com" 
+                        className="text-primary-landing font-bold hover:underline flex items-center justify-center gap-2"
+                    >
+                        <span className="material-symbols-outlined">mail</span>
+                        equipe.e5inovacao@gmail.com
+                    </a>
+                    <p className="text-gray-500 dark:text-gray-500 text-sm mt-8">
+                        &copy; {new Date().getFullYear()} Saldo Gestão Financeira. Todos os direitos reservados.
+                    </p>
+                </div>
+              </footer>
             </main>
           </div>
         </div>
