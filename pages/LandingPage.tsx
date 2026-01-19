@@ -66,13 +66,15 @@ const LandingPage: React.FC = () => {
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                     {[
-                      { img: '/img_landingpage/img_01_controle.png', title: '1. Crie sua conta', desc: 'Cadastre-se rapidamente e configure seu perfil.' },
-                      { img: '/img_landingpage/img_02_metas.png', title: '2. Registre seus gastos', desc: 'Adicione suas receitas e despesas para ter clareza para onde vai seu dinheiro.' },
-                      { img: '/img_landingpage/img_03_categorias.png', title: '3. Alcance seus objetivos', desc: 'Defina orçamentos, crie metas e acompanhe seu progresso.' },
+                      { icon: 'person_add', title: '1. Crie sua conta', desc: 'Cadastre-se rapidamente e configure seu perfil.' },
+                      { icon: 'paid', title: '2. Registre seus gastos', desc: 'Adicione suas receitas e despesas para ter clareza para onde vai seu dinheiro.' },
+                      { icon: 'rocket_launch', title: '3. Alcance seus objetivos', desc: 'Defina orçamentos, crie metas e acompanhe seu progresso.' },
                     ].map((step, idx) => (
                       <div key={idx} className="flex flex-col items-center text-center">
-                        <div className="flex items-center justify-center size-24 mb-4 rounded-xl overflow-hidden shadow-sm">
-                          <img src={step.img} alt={step.title} className="w-full h-full object-cover" />
+                        <div className="flex items-center justify-center size-12 rounded-full bg-primary-landing/10 text-primary-landing mb-4">
+                          <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>
+                            {step.icon}
+                          </span>
                         </div>
                         <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">{step.title}</h3>
                         <p className="text-gray-700 dark:text-gray-300 mt-1">{step.desc}</p>
