@@ -8,25 +8,25 @@ const HowItWorks: React.FC = () => {
       title: 'Dashboard Intuitivo',
       description: 'Tenha uma visão clara de suas finanças assim que entrar. Acompanhe seu saldo atual, receitas e despesas do mês, além de um gráfico interativo e calendário para visualizar seu fluxo de caixa.',
       icon: 'dashboard',
-      image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuD9WVd-1RmJLJWB-hiaxYK8AkK9PTXhRtwD-B_aycf2UP96vSFmsBTw821ZxKNC0FooPg2h_Dy1XAFEe-HbmCDE96joIWLBwIkBjjZZIJV900hssaRMb32PZwdDipKmULpywLANZ6tZb_ToCCIEbKwhfpoNUzINOq_D6ZgPSYgnHwaskaSOaRNPVRdoA_qPPYTM1Jo997aqylgOxstKP1rNke4lVMvn-gwfkF66YBs3J3BvXut3DLSmMbnjsLFYYVuaB_U414l4ihQ' // 3D Illustration from Landing Page (Matches requested style)
+      image: '/img_landingpage/img_01_controle.png'
     },
     {
       title: 'Controle de Transações',
       description: 'Registre cada gasto ou ganho com facilidade. Categorize suas movimentações (Alimentação, Transporte, Lazer, etc.) para entender exatamente para onde seu dinheiro está indo.',
       icon: 'receipt_long',
-      image: 'https://images.unsplash.com/photo-1634733988685-a91a649bf449?auto=format&fit=crop&q=80&w=1000' // 3D Floating Shapes Soft
+      image: '/img_landingpage/img_01_controle.png'
     },
     {
       title: 'Metas Financeiras',
       description: 'Sonha em viajar, comprar uma casa ou montar sua reserva de emergência? Crie metas personalizadas, defina valores alvo e acompanhe visualmente o quanto falta para realizar seus sonhos.',
       icon: 'flag',
-      image: 'https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?auto=format&fit=crop&q=80&w=1000' // Money Plant in Jar (Matching the plant theme)
+      image: '/img_landingpage/img_02_metas.png'
     },
     {
       title: 'Categorias Personalizáveis',
       description: 'O Saldo se adapta a você. Crie suas próprias categorias e subcategorias para organizar suas finanças da maneira que fizer mais sentido para sua realidade.',
       icon: 'category',
-      image: 'https://images.unsplash.com/photo-1614850523459-c2f4c699c52e?auto=format&fit=crop&q=80&w=1000' // 3D Abstract Shapes Soft Pink/Beige
+      image: '/img_landingpage/img_03_categorias.png'
     }
   ];
 
