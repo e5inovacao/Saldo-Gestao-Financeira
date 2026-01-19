@@ -6,7 +6,7 @@ import { supabase } from '../src/lib/supabase';
 const Header: React.FC = () => {
   const location = useLocation();
   const { user } = useAuth();
-  const [avatarUrl, setAvatarUrl] = useState('https://api.dicebear.com/9.x/micah/svg?seed=Felix&backgroundColor=f0f0f0');
+  const [avatarUrl, setAvatarUrl] = useState('/img_perfil_default/perfil_01.png');
   const isActive = (path: string) => location.pathname === path;
 
   useEffect(() => {

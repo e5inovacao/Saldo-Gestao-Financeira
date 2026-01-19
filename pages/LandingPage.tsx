@@ -36,7 +36,7 @@ const LandingPage: React.FC = () => {
                     </div>
                     <Link
                       to="/signup"
-                      className="flex min-w-[84px] w-full md:w-auto max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 md:h-12 md:px-5 bg-transparent border-2 border-primary-landing text-primary-landing text-sm font-bold leading-normal tracking-[0.015em] md:text-base hover:bg-green-800 hover:border-green-800 hover:text-white transition-colors"
+                      className="flex min-w-[84px] w-full md:w-auto max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 md:h-12 md:px-5 bg-transparent border-2 border-primary-landing text-primary-landing text-sm font-bold leading-normal tracking-[0.015em] md:text-base hover:bg-green-600 hover:border-green-600 hover:text-white transition-colors"
                     >
                       <span className="truncate">Comece o Teste Grátis</span>
                     </Link>

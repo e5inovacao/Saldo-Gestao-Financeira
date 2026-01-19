@@ -59,7 +59,7 @@ const PublicHeader: React.FC = () => {
         </div>
         <Link
           to="/signup"
-          className="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-primary-landing text-white text-sm font-bold leading-normal tracking-[0.015em] hover:bg-green-800 transition-colors"
+          className="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-primary-landing text-white text-sm font-bold leading-normal tracking-[0.015em] hover:bg-green-600 transition-colors"
         >
           <span className="truncate">Comece o Teste Grátis</span>
         </Link>
